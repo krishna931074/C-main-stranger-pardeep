@@ -39,61 +39,7 @@ import logging
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 
-# Setup logging to capture any errors or info
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-logger = logging.getLogger(__name__)
 
-# Command to start the bot
-def start(update: Update, context: CallbackContext):
-    update.message.reply_text("Hello! Send me a ZIP file, and I'll extract its contents.")
-
-# Function to handle the received ZIP file and extract it
-def handle_zip(update: Update, context: CallbackContext):
-    file = update.message.document.get_file()
-    file_name = file.file_path.split('/')[-1]
-    
-    # Check if file is a .zip file
-    if file_name.endswith('.zip'):
-        file.download(file_name)
-        extracted_folder = f'extracted_{file_name[:-4]}'
-        
-        # Create a directory for extracted contents
-        if not os.path.exists(extracted_folder):
-            os.makedirs(extracted_folder)
-
-        # Extract the ZIP file
-        try:
-            with zipfile.ZipFile(file_name, 'r') as zip_ref:
-                zip_ref.extractall(extracted_folder)
-            
-            update.message.reply_text(f"ZIP file extracted to: {extracted_folder}")
-        except zipfile.BadZipFile:
-            update.message.reply_text("Sorry, the file is not a valid ZIP file.")
-        except Exception as e:
-            update.message.reply_text(f"An error occurred: {e}")
-    else:
-        update.message.reply_text("Please send a ZIP file.")
-
-# Main function to set up the bot
-def main():
-    # Replace with your own bot token
-    updater = Updater("7714349715:AAE5qEcWOKwwIPm_05hiGjrOx_bhe8x67cY", use_context=True)
-
-    # Dispatcher for handling commands and messages
-    dp = updater.dispatcher
-
-    # Add handlers for commands
-    dp.add_handler(CommandHandler("start", start))
-    
-    # Add handler for receiving files
-    dp.add_handler(MessageHandler(Filters.document.mime_type("application/zip"), handle_zip))
-
-    # Start polling for updates
-    updater.start_polling()
-    updater.idle()
-
-if __name__ == '__main__':
-    main()
 # Initialize bot
 bot = Client("bot",
              bot_token=BOT_TOKEN,
